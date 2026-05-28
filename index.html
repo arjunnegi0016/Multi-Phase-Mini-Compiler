@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiniCompiler Terminal</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles/terminal.css">
+</head>
+<body>
+
+<!-- =========================================================
+     WINDOW CHROME
+========================================================== -->
+<div class="window">
+
+  <!-- Title bar with macOS-style traffic lights -->
+  <div class="titlebar">
+    <div class="title-text">MultiPhase Minicompiler and Algorithm Mapping</div>
+    <div class="title-badge">v2.0</div>
+  </div>
+
+  <!-- =====================================================
+       WORKSPACE  (editor left | terminal right)
+  ====================================================== -->
+  <div class="workspace">
+
+    <!-- ── LEFT: Source code editor ────────────────────── -->
+    <div class="editor-pane">
+
+      <!-- Editor header: filename + sample buttons -->
+      <div class="pane-header">
+        <span class="pane-title">source.mc</span>
+        <div class="sample-row">
+          <button class="sbtn" onclick="loadSample('basic')">basic</button>
+          <button class="sbtn" onclick="loadSample('loop')">loop</button>
+          <button class="sbtn" onclick="loadSample('func')">func</button>
+          <button class="sbtn" onclick="loadSample('error')">errors</button>
+        </div>
+      </div>
+
+      <!-- Editor body: line numbers + textarea -->
+      <div class="editor-wrap">
+        <div class="line-nums" id="lineNums"></div>
+        <textarea
+          id="src"
+          spellcheck="false"
+          oninput="syncLines()"
+          placeholder="// write your code here..."></textarea>
+      </div>
+
+      <!-- Editor footer: cursor position, char count, status -->
+      <div class="editor-footer">
+        <span id="ef-pos">Ln 1 Col 1</span>
+        <span id="ef-chars">0 chars</span>
+        <div class="ef-status">
+          <div class="ef-dot" id="ef-dot"></div>
+          <span id="ef-msg">ready</span>
+        </div>
+      </div>
+
+    </div><!-- /editor-pane -->
+
+    <!-- ── RIGHT: Terminal ──────────────────────────────── -->
+    <div class="terminal-pane">
+
+      <!-- Scrollable output area -->
+      <div class="term-output" id="output"></div>
+
+      <!-- Fixed input row at the bottom -->
+      <div class="term-input-row">
+        <span class="prompt-label">compiler&gt;</span>
+        <input
+          id="cmd-input"
+          type="text"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="type 'help' for commands..."
+          onkeydown="handleKey(event)">
+      </div>
+
+    </div><!-- /terminal-pane -->
+
+  </div><!-- /workspace -->
+
+</div><!-- /window -->
+
+<!-- =========================================================
+     SCRIPTS
+     Load order is critical -- each file depends on the ones
+     above it. Compiler phases must come before the terminal
+     layer which calls them.
+========================================================== -->
+
+<!-- Sample programs (must come first -- boot.js reads SAMPLES) -->
+<script src="samples/samples.js"></script>
+
+<!-- Phase 1: Lexer (defines TOKEN_TYPES, KEYWORDS, lexer()) -->
+<script src="src/lexer/lexer.js"></script>
+
+<!-- Phase 2: Parser (defines parser()) -->
+<script src="src/parser/parser.js"></script>
+
+<!-- Phase 3: Semantic analyser (defines semantic()) -->
+<script src="src/semantic/semantic.js"></script>
+
+<!-- Phase 4: IR codegen + algorithm detector -->
+<script src="src/codegen/codegen.js"></script>
+
+<!-- Terminal layer: shared state, output primitives, helpers -->
+<script src="terminal/state.js"></script>
+<script src="terminal/output.js"></script>
+<script src="terminal/helpers.js"></script>
+
+<!-- Terminal layer: command table, input handler, editor sync -->
+<script src="terminal/commands.js"></script>
+<script src="terminal/input.js"></script>
+<script src="terminal/editor.js"></script>
+
+<!-- Boot: runs last, after all globals are defined -->
+<script src="terminal/boot.js"></script>
+
+</body>
+</html>

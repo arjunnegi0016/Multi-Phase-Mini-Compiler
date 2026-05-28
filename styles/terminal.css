@@ -1,0 +1,309 @@
+/*
+ * styles/terminal.css
+ * All visual styles for the terminal compiler UI
+ *
+ * Sections:
+ *   1. CSS variables and reset
+ *   2. Window chrome (titlebar + traffic lights)
+ *   3. Workspace split layout
+ *   4. Left pane  -- code editor
+ *   5. Right pane -- terminal output and input
+ *   6. Terminal output primitives (lines, bars, trees, cards)
+ *   7. Animations
+ *   8. Scrollbar
+ */
+ 
+/* ── 1. Variables and reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0c0e0f;
+  --bg2:       #111416;
+  --bg3:       #161a1b;
+  --border:    #1e2326;
+  --green:     #4ec9b0;
+  --green2:    #73d9a2;
+  --yellow:    #dcdcaa;
+  --blue:      #569cd6;
+  --purple:    #c586c0;
+  --orange:    #ce9178;
+  --red:       #f44747;
+  --amber:     #ffcc02;
+  --cyan:      #4fc1ff;
+  --white:     #d4d4d4;
+  --dim:       #6a9955;
+  --selection: rgba(78,201,176,0.25);
+  --font:      'JetBrains Mono', monospace;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+/* ── 2. Window chrome ── */
+.window {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg);
+}
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.title-text {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  color: #6a737d;
+  letter-spacing: 0.3px;
+}
+
+.title-badge {
+  font-size: 10px;
+  background: rgba(78,201,176,0.15);
+  color: var(--green);
+  border: 1px solid rgba(78,201,176,0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* ── 3. Workspace split ── */
+.workspace {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── 4. Editor pane (left) ── */
+.editor-pane {
+  width: 420px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  background: var(--bg2);
+}
+
+.pane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+  flex-shrink: 0;
+}
+
+.pane-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #6a737d;
+}
+
+.sample-row { display: flex; gap: 5px; }
+
+.sbtn {
+  font-family: var(--font);
+  font-size: 10px;
+  padding: 2px 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: #6a737d;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sbtn:hover { border-color: var(--green); color: var(--green); }
+
+.editor-wrap {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.line-nums {
+  width: 42px;
+  padding: 12px 8px 12px 0;
+  text-align: right;
+  color: #3d4450;
+  font-size: 12px;
+  line-height: 1.6;
+  user-select: none;
+  overflow: hidden;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.line-nums div { line-height: 1.6; height: calc(12px * 1.6); }
+
+#src {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: var(--font);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--white);
+  padding: 12px 14px;
+  caret-color: var(--white);
+  tab-size: 4;
+  overflow-y: auto;
+  overflow-x: auto;
+  white-space: pre;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+#src::selection { background: var(--selection); }
+
+.editor-footer {
+  padding: 4px 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  color: #3d4450;
+  flex-shrink: 0;
+}
+
+.ef-status { margin-left: auto; display: flex; align-items: center; gap: 5px; }
+.ef-dot    { width: 5px; height: 5px; border-radius: 50%; background: #3d4450; }
+
+/* ── 5. Terminal pane (right) ── */
+.terminal-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--bg);
+}
+
+.term-output {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 18px 0;
+  min-height: 0;
+}
+
+.term-input-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 18px;
+  border-top: 1px solid var(--border);
+  gap: 8px;
+  flex-shrink: 0;
+  background: var(--bg);
+}
+
+.prompt-label {
+  color: var(--green);
+  font-weight: 700;
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+#cmd-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--white);
+  caret-color: var(--green);
+}
+#cmd-input::selection   { background: var(--selection); }
+#cmd-input::placeholder { color: #3d4450; }
+
+/* ── 6. Terminal output primitives ── */
+
+/* Generic line */
+.t-line    { line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+.t-blank   { height: 6px; }
+
+/* Echoed command row */
+.t-cmd      { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 2px; }
+.t-cmd .pmt { color: var(--green); font-weight: 700; flex-shrink: 0; }
+.t-cmd .txt { color: var(--white); }
+
+/* Semantic colour tokens */
+.t-ok      { color: var(--green2); }
+.t-err     { color: var(--red); }
+.t-warn    { color: var(--amber); }
+.t-info    { color: var(--cyan); }
+.t-dim     { color: #4a525a; }
+.t-head    { color: var(--yellow); font-weight: 700; }
+.t-kw      { color: var(--blue); }
+.t-ident   { color: var(--cyan); }
+.t-lit     { color: var(--orange); }
+.t-op      { color: var(--white); }
+.t-punct   { color: #7a8897; }
+.t-comment { color: var(--dim); font-style: italic; }
+.t-type    { color: var(--purple); }
+.t-label   { color: var(--amber); }
+.t-temp    { color: var(--orange); }
+.t-ir      { color: var(--blue); font-weight: 700; }
+
+/* Boxed output blocks (IR functions, etc.) */
+.t-box      { border: 1px solid var(--border); border-radius: 4px; margin: 6px 0; overflow: hidden; }
+.t-box-head { background: var(--bg3); padding: 4px 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #4a525a; border-bottom: 1px solid var(--border); }
+.t-box-body { padding: 8px 12px; }
+
+/* Horizontal progress bar (used during compile phases) */
+.progress-bar  { height: 2px; background: var(--bg3); border-radius: 1px; overflow: hidden; margin: 4px 0; }
+.progress-fill { height: 100%; background: var(--green); border-radius: 1px; animation: progressAnim 0.4s ease forwards; width: 0%; }
+
+/* Token distribution bar chart */
+.t-bar-row   { display: flex; align-items: center; gap: 8px; margin: 2px 0; }
+.t-bar-label { width: 72px; text-align: right; font-size: 11px; }
+.t-bar-track { flex: 1; height: 8px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+.t-bar-fill  { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+.t-bar-count { width: 28px; text-align: right; font-size: 11px; color: #4a525a; }
+
+/* AST tree */
+.t-tree-node { display: flex; align-items: center; gap: 6px; line-height: 1.7; }
+.t-node-tag  { font-size: 10px; font-weight: 700; padding: 0 6px; border-radius: 3px; }
+
+/* Scope visualizer blocks */
+.t-scope-block { border-left: 2px solid; margin: 3px 0; padding: 4px 0 4px 12px; }
+
+/* Algorithm pattern cards */
+.t-algo-block { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 10px 14px; margin: 6px 0; }
+.t-algo-head  { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.t-algo-badge { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 3px; }
+.t-algo-desc  { color: #6a737d; font-size: 11px; line-height: 1.6; margin-bottom: 6px; }
+.t-algo-meta  { display: flex; gap: 10px; font-size: 10px; color: #4a525a; }
+
+/* Horizontal rule divider */
+.t-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+
+/* ── 7. Animations ── */
+@keyframes progressAnim { to { width: 100%; } }
+@keyframes fadeSlide    { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+.fade-in { animation: fadeSlide 0.15s ease forwards; }
+
+/* ── 8. Scrollbar ── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a3038; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3d4450; }
